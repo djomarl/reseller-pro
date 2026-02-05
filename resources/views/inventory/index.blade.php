@@ -168,6 +168,14 @@
                             this.$refs.name.value = tpl.name;
                             this.$refs.brand.value = tpl.brand;
                             this.$refs.price.value = tpl.default_buy_price;
+                            // Vul verkoopprijs in als die bestaat
+                            if (this.$refs.sell_price && tpl.default_sell_price !== undefined) {
+                                this.$refs.sell_price.value = tpl.default_sell_price;
+                            }
+                            // Vul maat in als die bestaat
+                            if (this.$refs.size && tpl.size !== undefined) {
+                                this.$refs.size.value = tpl.size;
+                            }
                             this.$refs.img.value = tpl.image_url;
                         }
                     }
@@ -186,13 +194,19 @@
                         <div><label class="text-xs font-bold uppercase text-slate-400">Naam</label><input x-ref="name" type="text" name="name" required class="w-full p-3 rounded-xl border-slate-200 mt-1"></div>
                         <div class="flex gap-4">
                             <div class="flex-1"><label class="text-xs font-bold uppercase text-slate-400">Merk</label><input x-ref="brand" type="text" name="brand" class="w-full p-3 rounded-xl border-slate-200 mt-1"></div>
-                            <div class="w-24"><label class="text-xs font-bold uppercase text-slate-400">Maat</label><input type="text" name="size" class="w-full p-3 rounded-xl border-slate-200 mt-1"></div>
+                            <div class="w-24"><label class="text-xs font-bold uppercase text-slate-400">Maat</label><input x-ref="size" type="text" name="size" class="w-full p-3 rounded-xl border-slate-200 mt-1"></div>
                         </div>
                         <div class="flex gap-4">
                             <div class="flex-1">
                                 <label class="text-xs font-bold uppercase text-slate-400">Inkoop</label>
                                 <div class="relative mt-1"><span class="absolute left-3 top-3 text-slate-400 text-xs">€</span><input x-ref="price" type="number" step="0.01" name="buy_price" class="w-full pl-8 p-3 rounded-xl border-slate-200"></div>
                             </div>
+                            <div class="flex-1">
+                                <label class="text-xs font-bold uppercase text-slate-400">Verkoopprijs</label>
+                                <div class="relative mt-1"><span class="absolute left-3 top-3 text-slate-400 text-xs">€</span><input x-ref="sell_price" type="number" step="0.01" name="sell_price" class="w-full pl-8 p-3 rounded-xl border-slate-200"></div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
                             <div class="flex-1">
                                 <label class="text-xs font-bold uppercase text-slate-400">Pakket</label>
                                 <select name="parcel_id" class="w-full p-3 rounded-xl border-slate-200 mt-1 bg-white">

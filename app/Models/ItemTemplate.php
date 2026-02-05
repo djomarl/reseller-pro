@@ -13,6 +13,7 @@ class ItemTemplate extends Model
         'user_id',
         'name',
         'brand',
+        'size',
         'category',
         'default_buy_price',
         'default_sell_price',

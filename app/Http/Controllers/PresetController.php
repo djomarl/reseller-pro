@@ -19,6 +19,7 @@ class PresetController extends Controller
         $validated = $request->validate([
             'name' => 'required',
             'brand' => 'nullable',
+            'size' => 'nullable',
             'category' => 'nullable',
             'default_buy_price' => 'nullable',
             'default_sell_price' => 'nullable',

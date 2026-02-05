@@ -15,15 +15,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Voorraad (Inventory) & Import
-    Route::resource('inventory', InventoryController::class);
+    // Voorraad (Inventory)
     Route::post('/inventory/import', [InventoryController::class, 'importText'])->name('inventory.import');
+    Route::get('/inventory/archive', [InventoryController::class, 'index'])->name('inventory.archive');
+    Route::resource('inventory', InventoryController::class)->except(['show']);
 
     // Pakketten (Parcels)
-    Route::resource('parcels', ParcelController::class);
+    Route::resource('parcels', ParcelController::class)->except(['show']);
 
     // Templates (Presets)
-    Route::resource('presets', PresetController::class);
+    Route::resource('presets', PresetController::class)->except(['show']);
 
     // Profiel
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

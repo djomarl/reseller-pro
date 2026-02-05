@@ -23,8 +23,13 @@ class InventoryController extends Controller
             });
         }
 
+        $view = $request->get('view');
+        if (!$view && $request->route() && $request->route()->getName() === 'inventory.archive') {
+            $view = 'archive';
+        }
+
         // View filter (archive vs active)
-        if ($request->get('view') === 'archive') {
+        if ($view === 'archive') {
             $query->where('is_sold', true);
         } else {
             $query->where('is_sold', false);
@@ -64,38 +69,42 @@ class InventoryController extends Controller
         return redirect()->back()->with('success', 'Item toegevoegd!');
     }
 
-    public function update(Request $request, Item $item)
+    public function update(Request $request, Item $inventory)
     {
-        if ($item->user_id !== Auth::id()) abort(403);
+        $this->authorize('update', $inventory);
 
-        $item->fill($request->all());
+        if (is_null($inventory->user_id)) {
+            $inventory->user_id = Auth::id();
+        }
+
+        $inventory->fill($request->all());
 
         // Status logica
         if ($request->status == 'sold' || ($request->has('is_sold') && $request->is_sold)) {
-            $item->status = 'sold';
-            $item->is_sold = true;
-            if (!$item->sold_date) $item->sold_date = now();
+            $inventory->status = 'sold';
+            $inventory->is_sold = true;
+            if (!$inventory->sold_date) $inventory->sold_date = now();
         } elseif ($request->status != 'sold') {
-            $item->is_sold = false;
-            $item->sold_date = null;
+            $inventory->is_sold = false;
+            $inventory->sold_date = null;
         }
 
         // AI Name Clean trigger (handmatig via knop)
         if ($request->has('clean_name')) {
-            $analysis = $this->analyzeItemText($item->name);
-            $item->name = $analysis['name'];
-            $item->brand = $analysis['brand'];
-            $item->category = $analysis['category'];
+            $analysis = $this->analyzeItemText($inventory->name);
+            $inventory->name = $analysis['name'];
+            $inventory->brand = $analysis['brand'];
+            $inventory->category = $analysis['category'];
         }
 
-        $item->save();
+        $inventory->save();
         return redirect()->back()->with('success', 'Item geüpdatet');
     }
 
-    public function destroy(Item $item)
+    public function destroy(Item $inventory)
     {
-        if ($item->user_id !== Auth::id()) abort(403);
-        $item->delete();
+        $this->authorize('delete', $inventory);
+        $inventory->delete();
         return redirect()->back()->with('success', 'Item verwijderd');
     }
 

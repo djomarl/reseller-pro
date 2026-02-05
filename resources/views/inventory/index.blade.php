@@ -1,22 +1,21 @@
 <x-app-layout>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" x-data="{ showImport: false, showNew: false }">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="{ showImport: false, showNew: false }">
         
-        <!-- Alerts -->
         @if(session('success'))
-            <div class="mb-4 bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded-xl relative" role="alert">
+            <div class="mb-6 bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded-xl relative shadow-sm" role="alert">
                 <strong class="font-bold">Succes!</strong> <span class="block sm:inline">{{ session('success') }}</span>
             </div>
         @endif
 
         <!-- Toolbar -->
-        <div class="glass-card p-4 rounded-3xl mb-6 flex flex-col md:flex-row justify-between gap-4">
+        <div class="bg-white/80 backdrop-blur-md p-4 rounded-3xl border border-white shadow-sm mb-8 flex flex-col md:flex-row justify-between gap-4">
             <div class="flex gap-3">
-                <form action="{{ route('inventory.index') }}" method="GET" class="relative">
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Zoeken..." class="pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 w-64 shadow-sm">
-                    <svg class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <form action="{{ route('inventory.index') }}" method="GET" class="relative group">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Zoeken..." class="pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 w-64 shadow-sm group-hover:border-slate-300 transition">
+                    <svg class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400 group-hover:text-indigo-500 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </form>
                 
-                <a href="{{ route('inventory.index', ['view' => request('view') == 'archive' ? 'active' : 'archive']) }}" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-sm font-bold hover:bg-slate-50 flex items-center gap-2 transition">
+                <a href="{{ route('inventory.index', ['view' => request('view') == 'archive' ? 'active' : 'archive']) }}" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-sm font-bold hover:bg-slate-50 flex items-center gap-2 transition shadow-sm">
                     @if(request('view') == 'archive')
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> Toon Voorraad
                     @else
@@ -40,7 +39,7 @@
         <!-- Items Table -->
         <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
             <table class="w-full text-left">
-                <thead class="bg-slate-50 border-b border-slate-200">
+                <thead class="bg-slate-50/80 backdrop-blur border-b border-slate-200">
                     <tr>
                         <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Item</th>
                         <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Merk / Categorie</th>
@@ -55,8 +54,7 @@
                         <tr class="hover:bg-slate-50 transition group">
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-4">
-                                    <!-- Image / Placeholder -->
-                                    <div class="w-12 h-12 bg-slate-100 rounded-xl border border-slate-200 flex-shrink-0 overflow-hidden">
+                                    <div class="w-12 h-12 bg-white rounded-xl border border-slate-200 flex-shrink-0 overflow-hidden shadow-sm">
                                         @if($item->image_url)
                                             <img src="{{ $item->image_url }}" class="w-full h-full object-cover">
                                         @else
@@ -68,11 +66,10 @@
                                     <div>
                                         <div class="font-bold text-slate-800 flex items-center gap-2">
                                             {{ $item->name }}
-                                            <!-- AI Clean Button -->
                                             <form action="{{ route('inventory.update', $item) }}" method="POST" class="inline">
                                                 @csrf @method('PATCH')
                                                 <input type="hidden" name="clean_name" value="1">
-                                                <button type="submit" class="text-slate-300 hover:text-purple-500 transition" title="Gebruik AI om naam op te schonen">
+                                                <button type="submit" class="text-slate-300 hover:text-purple-500 transition opacity-0 group-hover:opacity-100" title="AI Clean">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                                                 </button>
                                             </form>
@@ -98,13 +95,13 @@
                             <td class="px-6 py-4 text-right">
                                 <form action="{{ route('inventory.update', $item) }}" method="POST">
                                     @csrf @method('PATCH')
-                                    <input type="number" step="0.01" name="sell_price" value="{{ $item->sell_price }}" class="w-20 text-right bg-transparent border-none p-0 font-bold focus:ring-0 focus:bg-white rounded transition" placeholder="-">
+                                    <input type="number" step="0.01" name="sell_price" value="{{ $item->sell_price }}" class="w-20 text-right bg-transparent border-none p-0 font-bold focus:ring-0 focus:bg-white rounded transition text-slate-800 placeholder-slate-300" placeholder="-">
                                 </form>
                             </td>
                             <td class="px-6 py-4 text-center">
                                 <form action="{{ route('inventory.update', $item) }}" method="POST">
                                     @csrf @method('PATCH')
-                                    <select name="status" onchange="this.form.submit()" class="text-[10px] font-bold uppercase rounded-full px-3 py-1 border-none cursor-pointer {{ $item->status == 'sold' ? 'bg-emerald-100 text-emerald-700' : ($item->status == 'online' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600') }}">
+                                    <select name="status" onchange="this.form.submit()" class="text-[10px] font-bold uppercase rounded-full px-3 py-1 border-none cursor-pointer shadow-sm transition {{ $item->status == 'sold' ? 'bg-emerald-100 text-emerald-700' : ($item->status == 'online' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600') }}">
                                         <option value="todo" {{ $item->status == 'todo' ? 'selected' : '' }}>To-do</option>
                                         <option value="online" {{ $item->status == 'online' ? 'selected' : '' }}>Online</option>
                                         <option value="sold" {{ $item->status == 'sold' ? 'selected' : '' }}>Verkocht</option>
@@ -121,7 +118,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="p-8 text-center text-slate-400 italic">Geen items gevonden. Importeer iets!</td></tr>
+                        <tr><td colspan="6" class="p-12 text-center text-slate-400 italic">Geen items gevonden. Importeer iets!</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -130,12 +127,12 @@
 
         <!-- IMPORT MODAL -->
         <div x-show="showImport" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showImport = false" x-transition>
-            <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-2xl m-4">
+            <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-2xl m-4 border border-white/50">
                 <h3 class="font-heading font-bold text-xl mb-2 flex items-center gap-2">
                     <div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg></div>
                     Import Text
                 </h3>
-                <p class="text-sm text-slate-500 mb-6">Kopieer de tekst van je Superbuy pagina (Ctrl+A, Ctrl+C) en plak het hieronder. De AI filtert de data.</p>
+                <p class="text-sm text-slate-500 mb-6">Kopieer de tekst van je order (Ctrl+A, Ctrl+C) en plak het hieronder. De AI doet de rest.</p>
                 
                 <form action="{{ route('inventory.import') }}" method="POST">
                     @csrf
@@ -158,7 +155,7 @@
             </div>
         </div>
 
-        <!-- NEW ITEM MODAL (Hier kun je ook templates gebruiken) -->
+        <!-- NEW ITEM MODAL -->
         <div x-show="showNew" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showNew = false" x-transition>
             <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-lg m-4">
                 <h3 class="font-heading font-bold text-xl mb-6">Nieuw Item</h3>
@@ -177,7 +174,6 @@
                 }">
                     @csrf
                     <div class="space-y-4">
-                        <!-- Template Select -->
                         <div>
                             <select @change="updateFromTemplate($event)" class="w-full p-2.5 rounded-xl border-slate-200 text-sm font-bold text-slate-600 bg-slate-50">
                                 <option value="">✨ Kies een Preset (Optioneel)</option>
@@ -206,7 +202,6 @@
                             </div>
                         </div>
                         
-                        <!-- Hidden fields for image if copied from template -->
                         <input type="hidden" name="image_url" x-ref="img">
 
                         <button class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-slate-800 transition mt-2">Toevoegen</button>

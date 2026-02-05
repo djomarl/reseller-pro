@@ -48,6 +48,7 @@
                             @foreach([
                                 'dashboard' => 'Dashboard',
                                 'inventory.index' => 'Voorraad',
+                                'inventory.archive' => 'Archief',
                                 'parcels.index' => 'Pakketten',
                                 'presets.index' => 'Presets'
                             ] as $route => $label)

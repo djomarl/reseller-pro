@@ -1,87 +1,215 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Voorraad') }}
-        </h2>
-    </x-slot>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" x-data="{ showImport: false, showNew: false }">
+        
+        <!-- Alerts -->
+        @if(session('success'))
+            <div class="mb-4 bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded-xl relative" role="alert">
+                <strong class="font-bold">Succes!</strong> <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
+        @endif
 
-    <div class="py-12" x-data="{ showModal: false }">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
-            <!-- Knoppenbalk -->
-            <div class="flex justify-between mb-4">
-                <form method="GET" action="{{ route('inventory.index') }}" class="flex gap-2">
-                    <input type="text" name="search" placeholder="Zoek item..." value="{{ request('search') }}" class="border-gray-300 rounded-md shadow-sm">
-                    <button type="submit" class="bg-gray-800 text-white px-4 py-2 rounded-md hover:bg-gray-700">Zoek</button>
+        <!-- Toolbar -->
+        <div class="glass-card p-4 rounded-3xl mb-6 flex flex-col md:flex-row justify-between gap-4">
+            <div class="flex gap-3">
+                <form action="{{ route('inventory.index') }}" method="GET" class="relative">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Zoeken..." class="pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:border-indigo-500 focus:ring-indigo-500 w-64 shadow-sm">
+                    <svg class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </form>
-
-                <button @click="showModal = true" class="bg-indigo-600 text-white px-4 py-2 rounded-md font-bold hover:bg-indigo-700">
-                    + Nieuw Item
-                </button>
+                
+                <a href="{{ route('inventory.index', ['view' => request('view') == 'archive' ? 'active' : 'archive']) }}" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 text-sm font-bold hover:bg-slate-50 flex items-center gap-2 transition">
+                    @if(request('view') == 'archive')
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg> Toon Voorraad
+                    @else
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg> Archief
+                    @endif
+                </a>
             </div>
 
-            <!-- Tabel -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <table class="w-full text-left">
-                        <thead>
-                            <tr class="border-b">
-                                <th class="pb-2">Naam</th>
-                                <th class="pb-2">Merk</th>
-                                <th class="pb-2 text-right">Prijs</th>
-                                <th class="pb-2">Pakket</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($items as $item)
-                                <tr class="border-b last:border-0 hover:bg-gray-50">
-                                    <td class="py-3 font-bold">{{ $item->name }}</td>
-                                    <td class="py-3 text-gray-500">{{ $item->brand ?? '-' }}</td>
-                                    <td class="py-3 text-right">€ {{ number_format($item->buy_price, 2) }}</td>
-                                    <td class="py-3">
-                                        @if($item->parcel)
-                                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">{{ $item->parcel->parcel_no }}</span>
-                                        @else
-                                            <span class="text-gray-400 text-xs">-</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                    
-                    <div class="mt-4">
-                        {{ $items->links() }} 
-                    </div>
-                </div>
+            <div class="flex gap-3">
+                <button @click="showImport = true" class="px-5 py-2.5 bg-white border border-indigo-100 text-indigo-600 rounded-xl text-sm font-bold shadow-sm hover:bg-indigo-50 transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                    Import Text
+                </button>
+                <button @click="showNew = true" class="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold shadow-lg hover:bg-slate-800 transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Nieuw Item
+                </button>
             </div>
         </div>
 
-        <!-- MODAL (Pop-up) -->
-        <div x-show="showModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" x-transition>
-            <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6" @click.away="showModal = false">
-                <h3 class="text-lg font-bold mb-4">Nieuw Item</h3>
+        <!-- Items Table -->
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Item</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Merk / Categorie</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Inkoop</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Verkoop</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Status</th>
+                        <th class="px-6 py-4"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-sm">
+                    @forelse($items as $item)
+                        <tr class="hover:bg-slate-50 transition group">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-4">
+                                    <!-- Image / Placeholder -->
+                                    <div class="w-12 h-12 bg-slate-100 rounded-xl border border-slate-200 flex-shrink-0 overflow-hidden">
+                                        @if($item->image_url)
+                                            <img src="{{ $item->image_url }}" class="w-full h-full object-cover">
+                                        @else
+                                            <div class="w-full h-full flex items-center justify-center text-slate-300">
+                                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-slate-800 flex items-center gap-2">
+                                            {{ $item->name }}
+                                            <!-- AI Clean Button -->
+                                            <form action="{{ route('inventory.update', $item) }}" method="POST" class="inline">
+                                                @csrf @method('PATCH')
+                                                <input type="hidden" name="clean_name" value="1">
+                                                <button type="submit" class="text-slate-300 hover:text-purple-500 transition" title="Gebruik AI om naam op te schonen">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-mono">{{ $item->item_no }}</span>
+                                            @if($item->parcel)
+                                                <span class="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded border border-indigo-100 flex items-center gap-1">
+                                                    📦 {{ $item->parcel->parcel_no }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="font-medium text-slate-700">{{ $item->brand ?? '-' }}</div>
+                                <div class="text-xs text-slate-400">{{ $item->category }}</div>
+                            </td>
+                            <td class="px-6 py-4 text-right font-bold text-slate-600">
+                                € {{ number_format($item->buy_price, 2) }}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <form action="{{ route('inventory.update', $item) }}" method="POST">
+                                    @csrf @method('PATCH')
+                                    <input type="number" step="0.01" name="sell_price" value="{{ $item->sell_price }}" class="w-20 text-right bg-transparent border-none p-0 font-bold focus:ring-0 focus:bg-white rounded transition" placeholder="-">
+                                </form>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <form action="{{ route('inventory.update', $item) }}" method="POST">
+                                    @csrf @method('PATCH')
+                                    <select name="status" onchange="this.form.submit()" class="text-[10px] font-bold uppercase rounded-full px-3 py-1 border-none cursor-pointer {{ $item->status == 'sold' ? 'bg-emerald-100 text-emerald-700' : ($item->status == 'online' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600') }}">
+                                        <option value="todo" {{ $item->status == 'todo' ? 'selected' : '' }}>To-do</option>
+                                        <option value="online" {{ $item->status == 'online' ? 'selected' : '' }}>Online</option>
+                                        <option value="sold" {{ $item->status == 'sold' ? 'selected' : '' }}>Verkocht</option>
+                                    </select>
+                                </form>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <form action="{{ route('inventory.destroy', $item) }}" method="POST" onsubmit="return confirm('Verwijderen?')">
+                                    @csrf @method('DELETE')
+                                    <button class="text-slate-300 hover:text-red-500 transition opacity-0 group-hover:opacity-100">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="6" class="p-8 text-center text-slate-400 italic">Geen items gevonden. Importeer iets!</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+            <div class="px-6 py-4 border-t border-slate-100">{{ $items->links() }}</div>
+        </div>
+
+        <!-- IMPORT MODAL -->
+        <div x-show="showImport" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showImport = false" x-transition>
+            <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-2xl m-4">
+                <h3 class="font-heading font-bold text-xl mb-2 flex items-center gap-2">
+                    <div class="bg-indigo-100 text-indigo-600 p-2 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg></div>
+                    Import Text
+                </h3>
+                <p class="text-sm text-slate-500 mb-6">Kopieer de tekst van je Superbuy pagina (Ctrl+A, Ctrl+C) en plak het hieronder. De AI filtert de data.</p>
                 
-                <form action="{{ route('inventory.store') }}" method="POST">
+                <form action="{{ route('inventory.import') }}" method="POST">
                     @csrf
                     <div class="mb-4">
-                        <label class="block text-sm font-bold mb-1">Naam</label>
-                        <input type="text" name="name" class="w-full border-gray-300 rounded-md" required>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Koppel aan Pakket</label>
+                        <select name="parcel_id" class="w-full p-3 rounded-xl border border-slate-200 mt-1 bg-slate-50 focus:bg-white transition">
+                            <option value="">Geen</option>
+                            @foreach($parcels as $parcel)
+                                <option value="{{ $parcel->id }}">{{ $parcel->parcel_no }}</option>
+                            @endforeach
+                        </select>
                     </div>
-                    <div class="flex gap-4 mb-4">
-                        <div class="w-1/2">
-                            <label class="block text-sm font-bold mb-1">Merk</label>
-                            <input type="text" name="brand" class="w-full border-gray-300 rounded-md">
-                        </div>
-                        <div class="w-1/2">
-                            <label class="block text-sm font-bold mb-1">Prijs (€)</label>
-                            <input type="number" step="0.01" name="buy_price" class="w-full border-gray-300 rounded-md" required>
-                        </div>
-                    </div>
+                    <textarea name="import_text" class="w-full h-64 p-4 rounded-xl border border-slate-200 font-mono text-xs bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-indigo-500 transition" placeholder="Plak hier je tekst... Order No: DO..."></textarea>
                     
-                    <div class="flex justify-end gap-2 mt-6">
-                        <button type="button" @click="showModal = false" class="text-gray-500 px-4 py-2 hover:text-gray-700">Annuleren</button>
-                        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">Opslaan</button>
+                    <div class="mt-6 flex justify-end gap-3">
+                        <button type="button" @click="showImport = false" class="text-slate-500 hover:text-slate-700 font-medium">Annuleren</button>
+                        <button type="submit" class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition">Importeren 🚀</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- NEW ITEM MODAL (Hier kun je ook templates gebruiken) -->
+        <div x-show="showNew" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" @click.self="showNew = false" x-transition>
+            <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-lg m-4">
+                <h3 class="font-heading font-bold text-xl mb-6">Nieuw Item</h3>
+                <form action="{{ route('inventory.store') }}" method="POST" x-data="{ 
+                    updateFromTemplate(event) {
+                        const id = event.target.value;
+                        const tpls = {{ Js::from($templates) }};
+                        const tpl = tpls.find(t => t.id == id);
+                        if(tpl) {
+                            this.$refs.name.value = tpl.name;
+                            this.$refs.brand.value = tpl.brand;
+                            this.$refs.price.value = tpl.default_buy_price;
+                            this.$refs.img.value = tpl.image_url;
+                        }
+                    }
+                }">
+                    @csrf
+                    <div class="space-y-4">
+                        <!-- Template Select -->
+                        <div>
+                            <select @change="updateFromTemplate($event)" class="w-full p-2.5 rounded-xl border-slate-200 text-sm font-bold text-slate-600 bg-slate-50">
+                                <option value="">✨ Kies een Preset (Optioneel)</option>
+                                @foreach($templates as $tpl)
+                                    <option value="{{ $tpl->id }}">{{ $tpl->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div><label class="text-xs font-bold uppercase text-slate-400">Naam</label><input x-ref="name" type="text" name="name" required class="w-full p-3 rounded-xl border-slate-200 mt-1"></div>
+                        <div class="flex gap-4">
+                            <div class="flex-1"><label class="text-xs font-bold uppercase text-slate-400">Merk</label><input x-ref="brand" type="text" name="brand" class="w-full p-3 rounded-xl border-slate-200 mt-1"></div>
+                            <div class="w-24"><label class="text-xs font-bold uppercase text-slate-400">Maat</label><input type="text" name="size" class="w-full p-3 rounded-xl border-slate-200 mt-1"></div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <label class="text-xs font-bold uppercase text-slate-400">Inkoop</label>
+                                <div class="relative mt-1"><span class="absolute left-3 top-3 text-slate-400 text-xs">€</span><input x-ref="price" type="number" step="0.01" name="buy_price" class="w-full pl-8 p-3 rounded-xl border-slate-200"></div>
+                            </div>
+                            <div class="flex-1">
+                                <label class="text-xs font-bold uppercase text-slate-400">Pakket</label>
+                                <select name="parcel_id" class="w-full p-3 rounded-xl border-slate-200 mt-1 bg-white">
+                                    <option value="">Geen</option>
+                                    @foreach($parcels as $p)<option value="{{ $p->id }}">{{ $p->parcel_no }}</option>@endforeach
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Hidden fields for image if copied from template -->
+                        <input type="hidden" name="image_url" x-ref="img">
+
+                        <button class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-slate-800 transition mt-2">Toevoegen</button>
                     </div>
                 </form>
             </div>

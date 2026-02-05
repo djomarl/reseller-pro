@@ -1,8 +1,41 @@
 <x-app-layout>
-    <!-- Alpine State -->
+    <style>
+        /* Shimmer (Glans over het glas) */
+        @keyframes shimmer-fast {
+            0% { transform: translateX(-150%) skewX(-20deg); }
+            100% { transform: translateX(200%) skewX(-20deg); }
+        }
+        
+        /* Aurora (Bewegende achtergrond kleuren) */
+        @keyframes aurora {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Float (Zwevend effect voor tekst/iconen) */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
+        }
+
+        /* Pulse Glow (Kloppende gloed) */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(var(--shadow-color), 0.2); }
+            50% { box-shadow: 0 0 25px rgba(var(--shadow-color), 0.5); }
+        }
+
+        .animate-shimmer-fast { animation: shimmer-fast 3s infinite ease-in-out; }
+        .animate-aurora { background-size: 200% 200%; animation: aurora 10s ease infinite; }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+        
+        /* Speciale classes voor Profit/Loss */
+        .theme-profit { --shadow-color: 16, 185, 129; } /* Emerald */
+        .theme-loss { --shadow-color: 239, 68, 68; }   /* Red */
+    </style>
+
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" x-data="{ dashboardView: 'financial', graphView: 'month' }">
         
-        <!-- Break Even Progress Bar -->
         <div class="glass-card p-6 rounded-3xl shadow-sm relative overflow-hidden mb-8 bg-white border border-slate-200">
             <div class="flex justify-between items-end mb-3 relative z-10">
                 <div>
@@ -21,12 +54,10 @@
                     <div class="absolute top-0 left-0 w-full h-full bg-white/20 animate-[pulse_2s_infinite]"></div>
                 </div>
             </div>
-            <!-- Deco blobs -->
             <div class="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl"></div>
             <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-500/5 rounded-full blur-3xl"></div>
         </div>
 
-        <!-- Controls Toolbar -->
         <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
             <div class="bg-white/60 p-1.5 rounded-2xl border border-white/50 shadow-sm flex gap-1 backdrop-blur-sm">
                 <button @click="dashboardView = 'financial'" 
@@ -46,31 +77,75 @@
             </button>
         </div>
 
-        <!-- VIEW: FINANCIAL -->
         <div x-show="dashboardView === 'financial'" x-transition class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Card 1 -->
-            <div class="glass-card p-6 rounded-3xl flex flex-col justify-between h-32 bg-white border border-slate-100 shadow-sm">
+            <div class="glass-card p-6 rounded-3xl flex flex-col justify-between h-32 bg-white border border-slate-100 shadow-sm transition-transform hover:scale-[1.02]">
                 <h3 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Totale Investering</h3>
                 <p class="text-3xl font-heading font-bold tracking-tight text-slate-800">€ {{ number_format($totalInvested, 2, ',', '.') }}</p>
             </div>
-            <!-- Card 2 -->
-            <div class="glass-card p-6 rounded-3xl flex flex-col justify-between h-32 bg-white border border-slate-100 shadow-sm">
+            <div class="glass-card p-6 rounded-3xl flex flex-col justify-between h-32 bg-white border border-slate-100 shadow-sm transition-transform hover:scale-[1.02]">
                 <h3 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Totale Omzet</h3>
                 <p class="text-3xl font-heading font-bold tracking-tight text-blue-600">€ {{ number_format($totalRevenue, 2, ',', '.') }}</p>
             </div>
-            <!-- Card 3 -->
-            <div class="glass-card p-6 rounded-3xl flex flex-col justify-between h-32 shadow-sm {{ $realizedProfit >= 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-white border-slate-100' }}">
-                <h3 class="{{ $realizedProfit >= 0 ? 'text-emerald-600' : 'text-slate-400' }} text-[10px] font-bold uppercase tracking-widest">Gerealiseerde Winst</h3>
-                <p class="text-3xl font-heading font-bold tracking-tight {{ $realizedProfit >= 0 ? 'text-emerald-600' : 'text-slate-800' }}">€ {{ number_format($realizedProfit, 2, ',', '.') }}</p>
+            
+            <div class="glass-card p-6 rounded-3xl flex flex-col justify-between h-32 relative overflow-hidden group transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl
+                {{ $realizedProfit >= 0 ? 'theme-profit border-emerald-200/50' : 'theme-loss border-red-200/50' }} border">
+                
+                <div class="absolute inset-0 opacity-20 animate-aurora
+                    {{ $realizedProfit >= 0 
+                        ? 'bg-gradient-to-br from-emerald-100 via-teal-100 to-cyan-100' 
+                        : 'bg-gradient-to-br from-red-100 via-orange-100 to-rose-100' 
+                    }}">
+                </div>
+
+                @if($realizedProfit >= 0)
+                    <div class="absolute top-0 right-0 w-48 h-48 bg-emerald-400/30 rounded-full blur-[60px] mix-blend-multiply animate-pulse"></div>
+                    <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-teal-300/30 rounded-full blur-[50px] mix-blend-multiply"></div>
+                @else
+                    <div class="absolute top-0 right-0 w-48 h-48 bg-red-500/20 rounded-full blur-[60px] mix-blend-multiply animate-pulse"></div>
+                    <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-orange-400/20 rounded-full blur-[50px] mix-blend-multiply"></div>
+                @endif
+
+                <div class="absolute inset-0 overflow-hidden pointer-events-none z-20">
+                    <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/60 to-transparent animate-shimmer-fast opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+
+                <div class="relative z-30 flex justify-between items-start">
+                    <h3 class="animate-float text-[10px] font-bold uppercase tracking-widest flex items-center gap-2
+                        {{ $realizedProfit >= 0 ? 'text-emerald-800' : 'text-red-800' }}">
+                        Netto Resultaat
+                        
+                        <span class="flex h-2 w-2 relative">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 {{ $realizedProfit >= 0 ? 'bg-emerald-400' : 'bg-red-400' }}"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 {{ $realizedProfit >= 0 ? 'bg-emerald-500' : 'bg-red-500' }}"></span>
+                        </span>
+                    </h3>
+                    
+                    <div class="p-2 rounded-xl backdrop-blur-md shadow-sm animate-float border border-white/50
+                        {{ $realizedProfit >= 0 ? 'bg-gradient-to-br from-white/80 to-emerald-50/50 text-emerald-600' : 'bg-gradient-to-br from-white/80 to-red-50/50 text-red-500' }}" style="animation-delay: 1s;">
+                        @if($realizedProfit >= 0)
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                        @else
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6" /></svg>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="relative z-30 mt-auto">
+                    <p class="text-4xl font-heading font-black tracking-tighter drop-shadow-sm transition-all duration-300 group-hover:scale-105 origin-left
+                        {{ $realizedProfit >= 0 
+                            ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-800' 
+                            : 'text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-rose-600 to-red-800' }}">
+                        € {{ number_format($realizedProfit, 2, ',', '.') }}
+                    </p>
+                </div>
             </div>
-            <!-- Card 4 -->
-            <div class="glass-card p-6 rounded-3xl flex flex-col justify-between h-32 bg-indigo-50 border border-indigo-100 shadow-sm">
+
+            <div class="glass-card p-6 rounded-3xl flex flex-col justify-between h-32 bg-indigo-50 border border-indigo-100 shadow-sm transition-transform hover:scale-[1.02]">
                 <h3 class="text-indigo-800 text-[10px] font-bold uppercase tracking-widest">Potentieel Totaal</h3>
                 <p class="text-3xl font-heading font-bold tracking-tight text-indigo-700">€ {{ number_format($potentialProfit, 2, ',', '.') }}</p>
             </div>
         </div>
 
-        <!-- VIEW: OPERATIONAL -->
         <div x-show="dashboardView === 'operational'" x-cloak x-transition class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
             <div class="glass-card p-5 rounded-3xl border border-slate-100 bg-white shadow-sm">
                 <h3 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Verkocht</h3>
@@ -96,7 +171,6 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <!-- Grafiek -->
             <div class="glass-panel p-8 rounded-3xl shadow-sm lg:col-span-2 bg-white border border-slate-100">
                 <div class="flex justify-between items-center mb-8">
                     <h3 class="font-heading font-bold text-xl text-slate-800">Winstverloop</h3>
@@ -106,14 +180,12 @@
                 </div>
                 
                 <div class="flex items-end justify-between h-64 gap-4 border-b border-slate-100 pb-2 relative">
-                    <!-- Achtergrond lijntjes -->
                     <div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-30">
                         <div class="w-full h-px bg-slate-200"></div><div class="w-full h-px bg-slate-200"></div><div class="w-full h-px bg-slate-200"></div><div class="w-full h-px bg-slate-200"></div>
                     </div>
 
                     @foreach($chartData as $data)
                         <div class="flex-1 flex flex-col items-center group relative h-full justify-end z-10">
-                            <!-- Tooltip -->
                             <div class="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-xs p-2 rounded-lg pointer-events-none whitespace-nowrap z-20 shadow-xl">
                                 <div class="font-bold">{{ $data['label'] }}</div>
                                 <div>Omzet: €{{ number_format($data['revenue'], 0) }}</div>
@@ -121,9 +193,7 @@
                             </div>
 
                             <div class="w-full max-w-[48px] flex flex-col-reverse h-full relative rounded-t-xl overflow-hidden">
-                                <!-- Omzet balk (achtergrond) -->
                                 <div style="height: {{ $maxRevenue > 0 ? ($data['revenue'] / $maxRevenue) * 100 : 0 }}%" class="w-full bg-slate-100 absolute bottom-0 group-hover:bg-slate-200 transition-colors rounded-t-sm"></div>
-                                <!-- Winst balk (voorgrond) -->
                                 <div style="height: {{ $maxRevenue > 0 ? max(0, ($data['profit'] / $maxRevenue) * 100) : 0 }}%" class="w-full bg-gradient-to-t from-indigo-600 to-indigo-400 absolute bottom-0 opacity-90 transition-all duration-700 shadow-lg shadow-indigo-200 rounded-t-sm"></div>
                             </div>
                             <span class="text-[10px] text-slate-400 mt-3 font-bold uppercase truncate w-full text-center">{{ $data['label'] }}</span>
@@ -132,7 +202,6 @@
                 </div>
             </div>
 
-            <!-- Top Categorieën -->
             <div class="glass-panel p-8 rounded-3xl shadow-sm bg-white border border-slate-100 flex flex-col">
                 <h3 class="font-heading font-bold text-xl mb-6 text-slate-800">Top Categorieën</h3>
                 <div class="space-y-6 flex-grow">

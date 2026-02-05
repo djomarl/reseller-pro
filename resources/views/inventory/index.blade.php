@@ -42,7 +42,8 @@
                 <thead class="bg-slate-50/80 backdrop-blur border-b border-slate-200">
                     <tr>
                         <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Item</th>
-                        <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Merk / Categorie</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Merk</th>
+                        <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Categorie</th>
                         <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Inkoop</th>
                         <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-right">Verkoop</th>
                         <th class="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider text-center">Status</th>
@@ -87,7 +88,9 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="font-medium text-slate-700">{{ $item->brand ?? '-' }}</div>
-                                <div class="text-xs text-slate-400">{{ $item->category }}</div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-xs text-slate-700">{{ $item->category ?? '-' }}</div>
                             </td>
                             <td class="px-6 py-4 text-right font-bold text-slate-600">
                                 € {{ number_format($item->buy_price, 2) }}
@@ -168,13 +171,14 @@
                             this.$refs.name.value = tpl.name;
                             this.$refs.brand.value = tpl.brand;
                             this.$refs.price.value = tpl.default_buy_price;
-                            // Vul verkoopprijs in als die bestaat
                             if (this.$refs.sell_price && tpl.default_sell_price !== undefined) {
                                 this.$refs.sell_price.value = tpl.default_sell_price;
                             }
-                            // Vul maat in als die bestaat
                             if (this.$refs.size && tpl.size !== undefined) {
                                 this.$refs.size.value = tpl.size;
+                            }
+                            if (this.$refs.category && tpl.category !== undefined) {
+                                this.$refs.category.value = tpl.category;
                             }
                             this.$refs.img.value = tpl.image_url;
                         }
@@ -193,8 +197,24 @@
 
                         <div><label class="text-xs font-bold uppercase text-slate-400">Naam</label><input x-ref="name" type="text" name="name" required class="w-full p-3 rounded-xl border-slate-200 mt-1"></div>
                         <div class="flex gap-4">
-                            <div class="flex-1"><label class="text-xs font-bold uppercase text-slate-400">Merk</label><input x-ref="brand" type="text" name="brand" class="w-full p-3 rounded-xl border-slate-200 mt-1"></div>
-                            <div class="w-24"><label class="text-xs font-bold uppercase text-slate-400">Maat</label><input x-ref="size" type="text" name="size" class="w-full p-3 rounded-xl border-slate-200 mt-1"></div>
+                            <div class="flex-1">
+                                <label class="text-xs font-bold uppercase text-slate-400">Merk</label>
+                                <input x-ref="brand" type="text" name="brand" class="w-full p-3 rounded-xl border-slate-200 mt-1">
+                            </div>
+                            <div class="flex-1">
+                                <label class="text-xs font-bold uppercase text-slate-400">Categorie</label>
+                                <select x-ref="category" name="category" class="w-full p-3 rounded-xl border-slate-200 mt-1 bg-white">
+                                    <option value="">Kies categorie</option>
+                                    <option value="Sneakers">Sneakers</option>
+                                    <option value="Kleding">Kleding</option>
+                                    <option value="Accessoire">Accessoire</option>
+                                    <option value="Overige">Overige</option>
+                                </select>
+                            </div>
+                            <div class="w-24">
+                                <label class="text-xs font-bold uppercase text-slate-400">Maat</label>
+                                <input x-ref="size" type="text" name="size" class="w-full p-3 rounded-xl border-slate-200 mt-1">
+                            </div>
                         </div>
                         <div class="flex gap-4">
                             <div class="flex-1">

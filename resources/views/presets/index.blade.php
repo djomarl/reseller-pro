@@ -30,6 +30,16 @@
                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Merk</label>
                             <input type="text" name="brand" class="w-full p-3 rounded-xl border-slate-200">
                         </div>
+                        <div class="w-40 space-y-1">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Categorie</label>
+                            <select name="category" class="w-full p-3 rounded-xl border-slate-200 bg-white">
+                                <option value="">Kies categorie</option>
+                                <option value="Sneakers">Sneakers</option>
+                                <option value="Kleding">Kleding</option>
+                                <option value="Accessoire">Accessoire</option>
+                                <option value="Overige">Overige</option>
+                            </select>
+                        </div>
                         <div class="w-24 space-y-1">
                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Maat</label>
                             <input type="text" name="size" class="w-full p-3 rounded-xl border-slate-200">

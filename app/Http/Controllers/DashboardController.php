@@ -28,15 +28,9 @@ class DashboardController extends Controller
         $totalInvested = $totalBuyCost + $totalShipping;
         $totalRevenue = $soldItemsWithPrice->sum('sell_price');
         
-        // Winst berekening (Gerealiseerd)
-        $realizedProfit = 0;
-        foreach($soldItemsWithPrice as $item) {
-            $shippingShare = 0;
-            if ($item->parcel && $item->parcel->items()->count() > 0) {
-                $shippingShare = $item->parcel->shipping_cost / $item->parcel->items()->count();
-            }
-            $realizedProfit += ($item->sell_price - $item->buy_price - $shippingShare);
-        }
+        // Netto resultaat (gerealiseerd) op basis van totale investering
+        // Zo verandert dit ook wanneer je nieuwe parcels of kosten toevoegt.
+        $realizedProfit = $totalRevenue - $totalInvested;
 
         // Potentieel
         $potentialRevenue = $unsoldItems->whereNotNull('sell_price')->sum('sell_price'); 

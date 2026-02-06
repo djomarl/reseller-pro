@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Models\Parcel;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -24,6 +25,10 @@ class DashboardController extends Controller
             ->where('is_sold', false)
             ->with('parcel')
             ->get();
+
+        $allItems = Item::where('user_id', $userId)
+            ->with('parcel.items')
+            ->get();
             
         $parcels = Parcel::where('user_id', $userId)->get();
 
@@ -41,8 +46,7 @@ class DashboardController extends Controller
         // Dit is je "Cash in": alles wat je hebt ontvangen
         $totalRevenue = $soldItemsWithPrice->sum('sell_price');
         
-        // FIX: Netto resultaat (Gerealiseerde Winst per item)
-        // Som van winst per verkocht item (Omzet - Inkoop - Verzendkosten)
+        // Gerealiseerde winst (alleen verkocht)
         $realizedProfit = $soldItemsWithPrice->sum(function ($item) {
             $buyPrice = $item->buy_price ?? 0;
             
@@ -54,6 +58,9 @@ class DashboardController extends Controller
             
             return $item->sell_price - $buyPrice - $shippingShare;
         });
+
+        // Netto resultaat (cashflow): omzet - totale investering
+        $netResult = $totalRevenue - $totalInvested;
 
         // Potentieel: Wat als je alles wat nu op voorraad ligt ook verkoopt?
         $potentialRevenue = $unsoldItems->whereNotNull('sell_price')->sum('sell_price'); 
@@ -107,7 +114,7 @@ class DashboardController extends Controller
         usort($categories, fn($a, $b) => $b['sold'] <=> $a['sold']);
         $topCategories = array_slice($categories, 0, 5);
 
-        // 4. Chart Data (Laatste 6 maanden)
+        // 4. Chart Data (Laatste 6 maanden) - netto resultaat gebaseerd op omzet vs investering
         $chartData = [];
         $maxRevenue = 0;
         
@@ -116,39 +123,52 @@ class DashboardController extends Controller
             $monthKey = $date->format('Y-m');
             $label = $date->format('M');
             
-            $monthItems = $soldItemsWithPrice->filter(function($item) use ($monthKey) {
+            $monthSoldItems = $soldItemsWithPrice->filter(function($item) use ($monthKey) {
                 $dateCheck = $item->sold_date ? Carbon::parse($item->sold_date) : Carbon::parse($item->updated_at);
                 return $dateCheck->format('Y-m') === $monthKey;
             });
 
-            $revenue = $monthItems->sum('sell_price');
+            $monthInvestItems = $allItems->filter(function($item) use ($monthKey) {
+                return Carbon::parse($item->created_at)->format('Y-m') === $monthKey;
+            });
+
+            $revenue = $monthSoldItems->sum('sell_price');
             
-            $cost = $monthItems->sum(function ($item) {
+            $investment = $monthInvestItems->sum(function ($item) {
                 $shippingShare = 0;
                 if ($item->parcel && $item->parcel->items->count() > 0) {
                     $shippingShare = $item->parcel->shipping_cost / $item->parcel->items->count();
                 }
-                return $item->buy_price + $shippingShare;
+                return ($item->buy_price ?? 0) + $shippingShare;
             });
             
-            $profit = $revenue - $cost;
-            $margin = $revenue > 0 ? round(($profit / $revenue) * 100, 1) : 0;
+            $net = $revenue - $investment;
+            $margin = $investment > 0 ? round(($net / $investment) * 100, 1) : 0;
 
             if($revenue > $maxRevenue) $maxRevenue = $revenue;
 
             $chartData[] = [
                 'label' => $label,
                 'revenue' => $revenue,
-                'profit' => $profit,
+                'profit' => $net,
                 'margin' => $margin
             ];
         }
 
         return view('dashboard', compact(
-            'totalInvested', 'totalRevenue', 'realizedProfit', 'potentialProfit', 'breakEvenPercent',
+            'totalInvested', 'totalRevenue', 'realizedProfit', 'netResult', 'potentialProfit', 'breakEvenPercent',
             'itemsSold', 'itemsInStock', 'totalParcels', 'avgSellDays', 'oldStockCount',
             'topCategories', 'chartData', 'maxRevenue'
         ));
+    }
+
+    public function toggleLayout(Request $request)
+    {
+        $user = Auth::user();
+        $user->layout = ($user->layout ?? 'top') === 'sidebar' ? 'top' : 'sidebar';
+        $user->save();
+
+        return redirect()->back();
     }
 
     public function report()

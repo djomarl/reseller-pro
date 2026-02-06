@@ -14,6 +14,7 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/dashboard/layout-toggle', [DashboardController::class, 'toggleLayout'])->name('dashboard.layout.toggle');
 
     // Voorraad (Inventory)
     Route::post('/inventory/import', [InventoryController::class, 'importText'])->name('inventory.import');

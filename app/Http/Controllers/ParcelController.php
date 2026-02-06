@@ -24,6 +24,7 @@ class ParcelController extends Controller
             'parcel_no' => 'required|string|max:255',
             'tracking_code' => 'nullable|string|max:255',
             'shipping_cost' => 'nullable|numeric',
+            'description' => 'nullable|string',
         ]);
 
         $parcel = new Parcel($validated);
@@ -37,8 +38,16 @@ class ParcelController extends Controller
     public function update(Request $request, Parcel $parcel)
     {
         if ($parcel->user_id !== Auth::id()) abort(403);
-        
-        $parcel->update($request->all());
+
+        $validated = $request->validate([
+            'parcel_no' => 'sometimes|required|string|max:255',
+            'tracking_code' => 'nullable|string|max:255',
+            'shipping_cost' => 'nullable|numeric',
+            'description' => 'nullable|string',
+            'status' => 'nullable|string',
+        ]);
+
+        $parcel->update($validated);
         return redirect()->back()->with('success', 'Pakket geüpdatet');
     }
 

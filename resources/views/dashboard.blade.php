@@ -84,19 +84,19 @@
                 </div>
                 
                 <div class="glass-card p-6 rounded-3xl flex flex-col justify-between h-32 relative overflow-hidden group transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl
-                    {{ $realizedProfit >= 0 ? 'theme-profit border-emerald-200/50' : 'theme-loss border-red-200/50' }} border">
+                    {{ $netResult >= 0 ? 'theme-profit border-emerald-200/50' : 'theme-loss border-red-200/50' }} border">
                     <div class="absolute inset-0 opacity-20 animate-aurora
-                        {{ $realizedProfit >= 0 ? 'bg-gradient-to-br from-emerald-100 via-teal-100 to-cyan-100' : 'bg-gradient-to-br from-red-100 via-orange-100 to-rose-100' }}">
+                        {{ $netResult >= 0 ? 'bg-gradient-to-br from-emerald-100 via-teal-100 to-cyan-100' : 'bg-gradient-to-br from-red-100 via-orange-100 to-rose-100' }}">
                     </div>
                     <div class="relative z-30 flex justify-between items-start">
-                        <h3 class="animate-float text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 {{ $realizedProfit >= 0 ? 'text-emerald-800' : 'text-red-800' }}">
+                        <h3 class="animate-float text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 {{ $netResult >= 0 ? 'text-emerald-800' : 'text-red-800' }}">
                             Netto Resultaat
                         </h3>
                     </div>
                     <div class="relative z-30 mt-auto">
                         <p class="text-4xl font-heading font-black tracking-tighter drop-shadow-sm transition-all duration-300 group-hover:scale-105 origin-left
-                            {{ $realizedProfit >= 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-800' : 'text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-rose-600 to-red-800' }}">
-                            € {{ number_format($realizedProfit, 2, ',', '.') }}
+                            {{ $netResult >= 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-800' : 'text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-rose-600 to-red-800' }}">
+                            € {{ number_format($netResult, 2, ',', '.') }}
                         </p>
                     </div>
                 </div>
@@ -228,7 +228,7 @@
             // 2. Profit/Loss Trend Chart
             const profitOptions = {
                 series: [{
-                    name: 'Netto Winst',
+                    name: 'Netto Resultaat',
                     data: profits
                 }],
                 chart: {

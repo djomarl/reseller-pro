@@ -57,7 +57,13 @@
                             </div>
                             <div class="pt-3 mt-3 border-t border-slate-50 flex justify-between items-center">
                                 <span class="uppercase text-[10px] font-bold tracking-wider">Kosten</span>
-                                <span class="text-xl font-bold text-slate-800">€ {{ number_format($parcel->shipping_cost, 2) }}</span>
+                                <span class="text-xl font-bold text-slate-800">
+                                    @if(is_null($parcel->shipping_cost))
+                                        —
+                                    @else
+                                        € {{ number_format($parcel->shipping_cost, 2) }}
+                                    @endif
+                                </span>
                             </div>
                         </div>
                         
@@ -92,8 +98,12 @@
                             <input type="text" name="tracking_code" class="w-full p-2.5 rounded-xl border-slate-200 mt-1" placeholder="Tracking nummer">
                         </div>
                         <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase">Beschrijving</label>
+                            <textarea name="description" rows="3" class="w-full p-2.5 rounded-xl border-slate-200 mt-1" placeholder="Bijv. leverancier, notities..."></textarea>
+                        </div>
+                        <div>
                             <label class="text-xs font-bold text-slate-500 uppercase">Verzendkosten (€)</label>
-                            <input type="number" step="0.01" name="shipping_cost" class="w-full p-2.5 rounded-xl border-slate-200 mt-1" placeholder="0.00">
+                            <input type="number" step="0.01" name="shipping_cost" class="w-full p-2.5 rounded-xl border-slate-200 mt-1" placeholder="Optioneel">
                         </div>
                         <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold">Opslaan</button>
                     </div>

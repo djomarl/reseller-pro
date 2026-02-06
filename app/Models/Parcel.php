@@ -10,7 +10,7 @@ class Parcel extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'parcel_no', 'tracking_code', 'shipping_cost', 'status', 'last_checked_at'];
+    protected $fillable = ['user_id', 'parcel_no', 'tracking_code', 'description', 'shipping_cost', 'status', 'last_checked_at'];
 
     public function items(): HasMany
     {

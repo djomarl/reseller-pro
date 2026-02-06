@@ -18,9 +18,6 @@
                     <x-nav-link :href="route('inventory.index')" :active="request()->routeIs('inventory.*') && !request()->routeIs('inventory.archive')">
                         {{ __('Voorraad') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('inventory.archive')" :active="request()->routeIs('inventory.archive')">
-                        {{ __('Archief') }}
-                    </x-nav-link>
                 </div>
             </div>
 
@@ -78,9 +75,6 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('inventory.index')" :active="request()->routeIs('inventory.*') && !request()->routeIs('inventory.archive')">
                 {{ __('Voorraad') }}
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('inventory.archive')" :active="request()->routeIs('inventory.archive')">
-                {{ __('Archief') }}
             </x-responsive-nav-link>
         </div>
 

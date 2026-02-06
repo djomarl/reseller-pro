@@ -17,6 +17,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Voorraad (Inventory)
     Route::post('/inventory/import', [InventoryController::class, 'importText'])->name('inventory.import');
+    Route::post('/inventory/bulk-action', [InventoryController::class, 'bulkAction'])->name('inventory.bulkAction');
     Route::get('/inventory/archive', [InventoryController::class, 'index'])->name('inventory.archive');
     Route::resource('inventory', InventoryController::class)->except(['show']);
 
@@ -30,6 +31,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Rapport
+    Route::get('/dashboard/report', [DashboardController::class, 'report'])->name('dashboard.report');
 });
 
 require __DIR__.'/auth.php';

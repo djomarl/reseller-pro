@@ -155,26 +155,55 @@
             </div>
         </div>
 
-        <div x-show="dashboardView === 'operational'" x-cloak x-transition class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-            <div class="glass-card p-5 rounded-3xl border border-slate-100 bg-white shadow-sm">
-                <h3 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Verkocht</h3>
-                <p class="text-3xl font-heading font-bold text-emerald-600">{{ $itemsSold }} <span class="text-sm font-medium text-slate-400">items</span></p>
+        <div x-show="dashboardView === 'operational'" x-cloak x-transition x-data="{ operationalRange: 'daily' }" class="space-y-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="glass-card p-5 rounded-3xl border border-slate-100 bg-white shadow-sm">
+                    <h3 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Verkocht</h3>
+                    <p class="text-3xl font-heading font-bold text-emerald-600">{{ $itemsSold }} <span class="text-sm font-medium text-slate-400">items</span></p>
+                </div>
+                <div class="glass-card p-5 rounded-3xl border border-slate-100 bg-white shadow-sm">
+                    <h3 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Voorraad</h3>
+                    <p class="text-3xl font-heading font-bold text-slate-800">{{ $itemsInStock }} <span class="text-sm font-medium text-slate-400">items</span></p>
+                </div>
+                <div class="glass-card p-5 rounded-3xl border border-slate-100 bg-white shadow-sm">
+                    <h3 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Pakketten</h3>
+                    <p class="text-3xl font-heading font-bold text-blue-600">{{ $totalParcels }}</p>
+                </div>
+                <div class="glass-card p-5 rounded-3xl border border-slate-100 bg-white shadow-sm">
+                    <h3 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Snelheid (Gem)</h3>
+                    <p class="text-3xl font-heading font-bold text-slate-800">{{ $avgSellDays }} <span class="text-sm font-medium text-slate-400">dagen</span></p>
+                </div>
+                <div class="glass-card p-5 rounded-3xl border shadow-sm {{ $oldStockCount > 0 ? 'bg-red-50 border-red-100' : 'border-slate-100 bg-white' }}">
+                    <h3 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Winkeldochters</h3>
+                    <p class="text-3xl font-heading font-bold {{ $oldStockCount > 0 ? 'text-red-500' : 'text-emerald-500' }}">{{ $oldStockCount }}</p>
+                </div>
             </div>
-            <div class="glass-card p-5 rounded-3xl border border-slate-100 bg-white shadow-sm">
-                <h3 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Voorraad</h3>
-                <p class="text-3xl font-heading font-bold text-slate-800">{{ $itemsInStock }} <span class="text-sm font-medium text-slate-400">items</span></p>
-            </div>
-            <div class="glass-card p-5 rounded-3xl border border-slate-100 bg-white shadow-sm">
-                <h3 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Pakketten</h3>
-                <p class="text-3xl font-heading font-bold text-blue-600">{{ $totalParcels }}</p>
-            </div>
-            <div class="glass-card p-5 rounded-3xl border border-slate-100 bg-white shadow-sm">
-                <h3 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Snelheid (Gem)</h3>
-                <p class="text-3xl font-heading font-bold text-slate-800">{{ $avgSellDays }} <span class="text-sm font-medium text-slate-400">dagen</span></p>
-            </div>
-            <div class="glass-card p-5 rounded-3xl border shadow-sm {{ $oldStockCount > 0 ? 'bg-red-50 border-red-100' : 'border-slate-100 bg-white' }}">
-                <h3 class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Winkeldochters</h3>
-                <p class="text-3xl font-heading font-bold {{ $oldStockCount > 0 ? 'text-red-500' : 'text-emerald-500' }}">{{ $oldStockCount }}</p>
+
+            <div class="glass-panel p-6 rounded-3xl shadow-sm bg-white border border-slate-100">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+                    <div>
+                        <h3 class="font-heading font-bold text-lg text-slate-800">Verkoopvolume</h3>
+                        <p class="text-xs text-slate-400">Aantal verkochte items per periode</p>
+                    </div>
+                    <div class="bg-slate-50 p-1.5 rounded-2xl border border-slate-100 shadow-sm flex gap-1">
+                        <button @click="operationalRange = 'daily'; window.setOperationalRange('daily')"
+                                :class="operationalRange === 'daily' ? 'bg-white text-indigo-600 shadow' : 'text-slate-500 hover:bg-white/60'"
+                                class="px-4 py-1.5 text-[11px] font-bold rounded-xl transition">
+                            Per dag
+                        </button>
+                        <button @click="operationalRange = 'weekly'; window.setOperationalRange('weekly')"
+                                :class="operationalRange === 'weekly' ? 'bg-white text-indigo-600 shadow' : 'text-slate-500 hover:bg-white/60'"
+                                class="px-4 py-1.5 text-[11px] font-bold rounded-xl transition">
+                            Per week
+                        </button>
+                        <button @click="operationalRange = 'monthly'; window.setOperationalRange('monthly')"
+                                :class="operationalRange === 'monthly' ? 'bg-white text-indigo-600 shadow' : 'text-slate-500 hover:bg-white/60'"
+                                class="px-4 py-1.5 text-[11px] font-bold rounded-xl transition">
+                            Per maand
+                        </button>
+                    </div>
+                </div>
+                <div id="chart-operational" class="min-h-[300px]"></div>
             </div>
         </div>
     </div>
@@ -182,6 +211,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const rawData = @json($chartData);
+            const operationalData = @json($operationalChartData);
             const labels = rawData.map(d => d.label);
             const revenues = rawData.map(d => d.revenue);
             const profits = rawData.map(d => d.profit);
@@ -277,6 +307,46 @@
                 }
             };
             new ApexCharts(document.querySelector("#chart-profit"), profitOptions).render();
+
+            // 3. Operational Sales Volume Chart
+            let operationalChart = null;
+            const renderOperationalChart = (range) => {
+                const labels = operationalData[range].labels;
+                const values = operationalData[range].values;
+
+                if (!operationalChart) {
+                    const operationalOptions = {
+                        series: [{ name: 'Verkocht', data: values }],
+                        chart: {
+                            type: 'area',
+                            height: 320,
+                            toolbar: { show: false },
+                            fontFamily: 'Inter, sans-serif'
+                        },
+                        stroke: { curve: 'smooth', width: 3 },
+                        dataLabels: { enabled: false },
+                        xaxis: { categories: labels },
+                        yaxis: { labels: { formatter: (val) => val.toFixed(0) } },
+                        colors: ['#6366f1'],
+                        fill: {
+                            type: 'gradient',
+                            gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.05 }
+                        },
+                        grid: { strokeDashArray: 4 }
+                    };
+                    operationalChart = new ApexCharts(document.querySelector("#chart-operational"), operationalOptions);
+                    operationalChart.render();
+                } else {
+                    operationalChart.updateOptions({ xaxis: { categories: labels } });
+                    operationalChart.updateSeries([{ name: 'Verkocht', data: values }]);
+                }
+            };
+
+            window.setOperationalRange = (range) => {
+                renderOperationalChart(range);
+            };
+
+            renderOperationalChart('daily');
         });
     </script>
 </x-app-layout>

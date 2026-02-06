@@ -12,6 +12,9 @@ class ParcelController extends Controller
     {
         $parcels = Parcel::where('user_id', Auth::id())
             ->withCount('items') // Telt automatisch hoeveel items erin zitten
+            ->with(['items' => function ($query) {
+                $query->select('id', 'parcel_id', 'name', 'brand', 'size', 'buy_price', 'sell_price', 'status');
+            }])
             ->orderBy('created_at', 'desc')
             ->get();
 

@@ -54,25 +54,40 @@
                         <ul class="space-y-1">
                             <li>
                                 <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-bold transition {{ request()->routeIs('dashboard*') ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100' }}">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M3 3h7v7H3zM14 3h7v5h-7zM14 10h7v11h-7zM3 12h7v9H3z" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
                                     Dashboard
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('inventory.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-bold transition {{ request()->routeIs('inventory*') ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100' }}">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M16 3v4M8 3v4"/></svg>
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M21 16V8a2 2 0 0 0-1-1.73L13 2.5a2 2 0 0 0-2 0L4 6.27A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 3.77a2 2 0 0 0 2 0l7-3.77A2 2 0 0 0 21 16z" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3.3 7.5L12 12l8.7-4.5M12 22V12" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
                                     Voorraad
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('parcels.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-bold transition {{ request()->routeIs('parcels*') ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100' }}">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M16 3v4M8 3v4"/></svg>
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M21 8.5V16a2 2 0 0 1-1.1 1.8l-7 3.5a2 2 0 0 1-1.8 0l-7-3.5A2 2 0 0 1 3 16V8.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M3 8.5l8.1-4.05a2 2 0 0 1 1.8 0L21 8.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 22V12" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M7 5.5l10 5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
                                     Pakketten
                                 </a>
                             </li>
                             <li>
                                 <a href="{{ route('presets.index') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-bold transition {{ request()->routeIs('presets*') ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-100' }}">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <circle cx="8" cy="6" r="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <circle cx="16" cy="12" r="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <circle cx="10" cy="18" r="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
                                     Presets
                                 </a>
                             </li>

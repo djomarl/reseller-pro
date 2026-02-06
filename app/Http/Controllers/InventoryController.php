@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Smalot\PdfParser\Parser;
 
 class InventoryController extends Controller
 {
@@ -53,7 +54,7 @@ class InventoryController extends Controller
         }
 
         // Data ophalen (met paginering voor de cards view)
-        $items = $query->latest()->paginate(24)->withQueryString();
+        $items = $query->with('parcel')->latest()->paginate(24)->withQueryString();
 
         // Data voor de filters en dropdowns
         $categories = Item::where('user_id', $userId)->whereNotNull('category')->distinct()->pluck('category')->sort();
@@ -216,10 +217,32 @@ class InventoryController extends Controller
     // --- IMPORT LOGICA ---
     public function importText(Request $request)
     {
-        $text = $request->input('import_text');
-        $parcelId = $request->input('parcel_id');
-        
-        $parts = preg_split('/Item\s*No[:：]/i', $text);
+        $validated = $request->validate([
+            'import_text' => 'nullable|string',
+            'order_pdf' => 'nullable|file|mimes:pdf|max:10240',
+            'parcel_id' => 'nullable|exists:parcels,id',
+        ]);
+
+        $parcelId = $validated['parcel_id'] ?? null;
+        $text = $validated['import_text'] ?? '';
+
+        if ($request->hasFile('order_pdf')) {
+            $parser = new Parser();
+            $text = $parser->parseFile($request->file('order_pdf')->getRealPath())->getText();
+        }
+
+        if (trim($text) === '') {
+            return redirect()->back()->with('error', 'Geen tekst of PDF gevonden om te importeren.');
+        }
+
+        $count = $this->importFromOrderText($text, $parcelId);
+        return redirect()->back()->with('success', "$count items geïmporteerd & opgeschoond!");
+    }
+
+    private function importFromOrderText(string $text, ?int $parcelId): int
+    {
+        $normalized = str_replace("：", ":", $text);
+        $parts = preg_split('/Item\s*No\.?[:]/i', $normalized);
         $count = 0;
 
         foreach ($parts as $index => $part) {
@@ -230,23 +253,55 @@ class InventoryController extends Controller
             if (strlen($itemNo) < 3) continue;
 
             $price = 0;
-            if (preg_match('/(?:US|EU|CNY|€|\$)\s*\\?[€$¥]?\s*(\d+[\.,]?\d*)/i', $part, $priceMatch)) {
+            if (preg_match('/(?:US|EU|CNY|€|\$|Price|Unit Price|Item Price)\s*[:]?\s*[€$¥]?\s*(\d+[\.,]?\d*)/i', $part, $priceMatch)) {
                 $price = floatval(str_replace(',', '.', $priceMatch[1]));
             }
 
             $name = 'Imported Item';
-            if (preg_match('/Shop\s*Name[:：]\s*(.*?)(?=(US|EU|€|\$|Price|Total))/is', $part, $nameMatch)) {
+            $brand = null;
+            $category = 'Overige';
+
+            $lines = collect(preg_split('/\r?\n/', $part))
+                ->map(fn($line) => trim($line))
+                ->filter()
+                ->values();
+
+            $shopIndex = $lines->search(function ($line) {
+                return stripos($line, 'Shop Name:') !== false;
+            });
+
+            $priceIndex = $lines->search(function ($line) {
+                return preg_match('/(€|\$|US|EU|CNY)\s*\d/', $line)
+                    || stripos($line, 'Total:') !== false
+                    || stripos($line, '包含邮费') !== false;
+            });
+
+            if ($shopIndex !== false) {
+                $start = $shopIndex + 1;
+                $end = $priceIndex !== false ? $priceIndex - 1 : $lines->count() - 1;
+
+                $nameLines = $lines->slice($start, max(0, $end - $start + 1))->values();
+
+                // Heuristiek: skip een extra shop-naam regel als deze geen ASCII letters bevat
+                if ($nameLines->count() > 1 && !preg_match('/[A-Za-z]/', $nameLines->first()) && preg_match('/[A-Za-z]/', $nameLines->get(1))) {
+                    $nameLines = $nameLines->slice(1)->values();
+                }
+
+                $rawName = $nameLines->implode(' ');
+                $rawName = trim(preg_replace('/\s+/', ' ', $rawName));
+
+                if ($rawName !== '') {
+                    $analysis = $this->analyzeItemText($rawName);
+                    $name = $analysis['name'];
+                    $brand = $analysis['brand'];
+                    $category = $analysis['category'];
+                }
+            } else if (preg_match('/Item\s*Name\s*[:]?\s*(.*?)(?=(US|EU|€|\$|Price|Total|Qty|Quantity|Item\s*No))/is', $part, $nameMatch)) {
                 $rawName = trim($nameMatch[1]);
-                $rawName = preg_replace('/^\S+\s+/', '', $rawName); 
-                
                 $analysis = $this->analyzeItemText($rawName);
                 $name = $analysis['name'];
                 $brand = $analysis['brand'];
                 $category = $analysis['category'];
-            } else {
-                $analysis = $this->analyzeItemText("Item $itemNo");
-                $brand = null;
-                $category = 'Overige';
             }
 
             Item::create([
@@ -263,7 +318,7 @@ class InventoryController extends Controller
             $count++;
         }
 
-        return redirect()->back()->with('success', "$count items geïmporteerd & opgeschoond!");
+        return $count;
     }
 
     // --- AI ANALYSE LOGICA ---

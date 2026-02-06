@@ -114,6 +114,53 @@ class DashboardController extends Controller
         usort($categories, fn($a, $b) => $b['sold'] <=> $a['sold']);
         $topCategories = array_slice($categories, 0, 5);
 
+        // 3b. Operationele grafiekdata (verkochte items) - dag/week/maand
+        $soldByDay = $soldItems->groupBy(function ($item) {
+            $dateCheck = $item->sold_date ? Carbon::parse($item->sold_date) : Carbon::parse($item->updated_at);
+            return $dateCheck->format('Y-m-d');
+        });
+
+        $soldByWeek = $soldItems->groupBy(function ($item) {
+            $dateCheck = $item->sold_date ? Carbon::parse($item->sold_date) : Carbon::parse($item->updated_at);
+            return $dateCheck->format('o-W');
+        });
+
+        $soldByMonth = $soldItems->groupBy(function ($item) {
+            $dateCheck = $item->sold_date ? Carbon::parse($item->sold_date) : Carbon::parse($item->updated_at);
+            return $dateCheck->format('Y-m');
+        });
+
+        $operationalChartData = [
+            'daily' => ['labels' => [], 'values' => []],
+            'weekly' => ['labels' => [], 'values' => []],
+            'monthly' => ['labels' => [], 'values' => []],
+        ];
+
+        // Dag (laatste 30 dagen)
+        for ($i = 29; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $key = $date->format('Y-m-d');
+            $operationalChartData['daily']['labels'][] = $date->format('d M');
+            $operationalChartData['daily']['values'][] = $soldByDay->get($key, collect())->count();
+        }
+
+        // Week (laatste 12 weken)
+        for ($i = 11; $i >= 0; $i--) {
+            $date = now()->subWeeks($i);
+            $key = $date->format('o-W');
+            $weekLabel = 'W' . $date->format('W');
+            $operationalChartData['weekly']['labels'][] = $weekLabel;
+            $operationalChartData['weekly']['values'][] = $soldByWeek->get($key, collect())->count();
+        }
+
+        // Maand (laatste 12 maanden)
+        for ($i = 11; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $key = $date->format('Y-m');
+            $operationalChartData['monthly']['labels'][] = $date->format('M');
+            $operationalChartData['monthly']['values'][] = $soldByMonth->get($key, collect())->count();
+        }
+
         // 4. Chart Data (Laatste 6 maanden) - netto resultaat gebaseerd op omzet vs investering
         $chartData = [];
         $maxRevenue = 0;
@@ -158,7 +205,7 @@ class DashboardController extends Controller
         return view('dashboard', compact(
             'totalInvested', 'totalRevenue', 'realizedProfit', 'netResult', 'potentialProfit', 'breakEvenPercent',
             'itemsSold', 'itemsInStock', 'totalParcels', 'avgSellDays', 'oldStockCount',
-            'topCategories', 'chartData', 'maxRevenue'
+            'topCategories', 'chartData', 'maxRevenue', 'operationalChartData'
         ));
     }
 

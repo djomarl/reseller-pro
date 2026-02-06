@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-12" x-data="{ showModal: false }">
+    <div class="py-12" x-data="{ showModal: false, showEditModal: false, editParcel: {} }">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             <!-- Knop Nieuw Pakket -->
@@ -33,11 +33,17 @@
                                     </span>
                                 </div>
                             </div>
-                            <!-- Delete knop (verborgen tot hover) -->
-                            <form action="{{ route('parcels.destroy', $parcel) }}" method="POST" onsubmit="return confirm('Zeker weten?')" class="opacity-0 group-hover:opacity-100 transition">
-                                @csrf @method('DELETE')
-                                <button class="text-slate-300 hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
-                            </form>
+                            <div class="opacity-0 group-hover:opacity-100 transition flex items-center gap-2">
+                                <button type="button"
+                                        @click="editParcel = {{ Js::from($parcel) }}; showEditModal = true"
+                                        class="text-slate-300 hover:text-indigo-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                </button>
+                                <form action="{{ route('parcels.destroy', $parcel) }}" method="POST" onsubmit="return confirm('Zeker weten?')">
+                                    @csrf @method('DELETE')
+                                    <button class="text-slate-300 hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>
+                                </form>
+                            </div>
                         </div>
 
                         <div class="space-y-2 text-sm text-slate-500">
@@ -55,6 +61,27 @@
                                 <span>Items:</span>
                                 <span class="font-bold text-slate-700">{{ $parcel->items_count }}</span>
                             </div>
+                            @if($parcel->items_count > 0)
+                                <details class="rounded-xl bg-slate-50 p-3 border border-slate-100">
+                                    <summary class="cursor-pointer text-xs font-bold uppercase tracking-wider text-slate-500">Bekijk items</summary>
+                                    <div class="mt-3 space-y-2">
+                                        @foreach($parcel->items as $item)
+                                            <div class="flex items-center justify-between text-xs text-slate-600">
+                                                <div class="font-semibold text-slate-700">
+                                                    {{ $item->name }}
+                                                    @if($item->brand)
+                                                        <span class="text-slate-400">• {{ $item->brand }}</span>
+                                                    @endif
+                                                    @if($item->size)
+                                                        <span class="text-slate-400">• {{ $item->size }}</span>
+                                                    @endif
+                                                </div>
+                                                <div class="text-slate-400">€ {{ number_format($item->buy_price ?? 0, 2) }}</div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </details>
+                            @endif
                             <div class="pt-3 mt-3 border-t border-slate-50 flex justify-between items-center">
                                 <span class="uppercase text-[10px] font-bold tracking-wider">Kosten</span>
                                 <span class="text-xl font-bold text-slate-800">
@@ -104,6 +131,44 @@
                         <div>
                             <label class="text-xs font-bold text-slate-500 uppercase">Verzendkosten (€)</label>
                             <input type="number" step="0.01" name="shipping_cost" class="w-full p-2.5 rounded-xl border-slate-200 mt-1" placeholder="Optioneel">
+                        </div>
+                        <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold">Opslaan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Edit Modal -->
+        <div x-show="showEditModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" x-transition>
+            <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6" @click.away="showEditModal = false">
+                <h3 class="text-lg font-bold mb-4">Pakket bewerken</h3>
+                <form :action="`/parcels/${editParcel.id}`" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase">Parcel No</label>
+                            <input type="text" name="parcel_no" x-model="editParcel.parcel_no" required class="w-full p-2.5 rounded-xl border-slate-200 mt-1">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase">Tracking</label>
+                            <input type="text" name="tracking_code" x-model="editParcel.tracking_code" class="w-full p-2.5 rounded-xl border-slate-200 mt-1">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase">Beschrijving</label>
+                            <textarea name="description" rows="3" x-model="editParcel.description" class="w-full p-2.5 rounded-xl border-slate-200 mt-1" placeholder="Bijv. leverancier, notities..."></textarea>
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase">Verzendkosten (€)</label>
+                            <input type="number" step="0.01" name="shipping_cost" x-model="editParcel.shipping_cost" class="w-full p-2.5 rounded-xl border-slate-200 mt-1" placeholder="Optioneel">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase">Status</label>
+                            <select name="status" x-model="editParcel.status" class="w-full p-2.5 rounded-xl border-slate-200 mt-1">
+                                <option value="prep">Prep</option>
+                                <option value="shipped">Onderweg</option>
+                                <option value="arrived">Ontvangen</option>
+                            </select>
                         </div>
                         <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold">Opslaan</button>
                     </div>

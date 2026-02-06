@@ -43,6 +43,11 @@
                 <strong class="font-bold">Succes!</strong> {{ session('success') }}
             </div>
         @endif
+        @if(session('error'))
+            <div class="mb-6 bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded-xl relative shadow-sm">
+                <strong class="font-bold">Fout!</strong> {{ session('error') }}
+            </div>
+        @endif
 
         <div class="flex flex-col gap-4 mb-8">
             <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
@@ -168,6 +173,7 @@
                             <th class="px-6 py-4">Item</th>
                             <th class="px-6 py-4">Categorie</th>
                             <th class="px-6 py-4">Maat</th>
+                            <th class="px-6 py-4">Pakket</th>
                             <th class="px-6 py-4 text-right">Inkoop</th>
                             <th class="px-6 py-4 text-right">Verkoop</th>
                             <th class="px-6 py-4 text-center">Status</th>
@@ -198,6 +204,9 @@
                             </td>
                             <td class="px-6 py-4 text-slate-600">{{ $item->category ?? '-' }}</td>
                             <td class="px-6 py-4 font-mono text-slate-500">{{ $item->size ?? '-' }}</td>
+                            <td class="px-6 py-4 text-slate-600">
+                                {{ $item->parcel ? ($item->parcel->parcel_no ?? 'Pakket #' . $item->parcel->id) : '-' }}
+                            </td>
                             <td class="px-6 py-4 text-right text-slate-500">€ {{ number_format($item->buy_price, 2) }}</td>
                             <td class="px-6 py-4 text-right font-bold text-slate-800">
                                 @if($item->sell_price) € {{ number_format($item->sell_price, 2) }} @else - @endif
@@ -312,7 +321,7 @@
                     <h3 class="font-heading font-bold text-xl">Import Text</h3>
                     <button @click="showImport = false" class="text-slate-400 hover:text-slate-600">✕</button>
                 </div>
-                <form action="{{ route('inventory.import') }}" method="POST">
+                <form action="{{ route('inventory.import') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="mb-4">
                         <label class="text-xs font-bold text-slate-500 uppercase">Koppel aan Pakket</label>
@@ -323,7 +332,12 @@
                             @endforeach
                         </select>
                     </div>
-                    <textarea name="import_text" class="w-full h-48 p-4 border-slate-200 rounded-xl mb-4 text-xs font-mono bg-slate-50 focus:bg-white transition" placeholder="Plak tekst van agent..."></textarea>
+                    <div class="mb-4">
+                        <label class="text-xs font-bold text-slate-500 uppercase">Upload Order PDF</label>
+                        <input type="file" name="order_pdf" accept="application/pdf" class="w-full p-3 border-slate-200 rounded-xl mt-1 bg-slate-50">
+                        <p class="text-[11px] text-slate-400 mt-1">PDF wordt automatisch uitgelezen en toegevoegd aan voorraad.</p>
+                    </div>
+                    <textarea name="import_text" class="w-full h-40 p-4 border-slate-200 rounded-xl mb-4 text-xs font-mono bg-slate-50 focus:bg-white transition" placeholder="Of plak hier de tekst van de order..."></textarea>
                     <button class="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold w-full hover:bg-indigo-700 transition">Importeren 🚀</button>
                 </form>
              </div>

@@ -68,6 +68,12 @@
                             Cards
                         </button>
                     </div>
+                    <form method="POST" action="{{ route('inventory.import.superbuy') }}">
+                        @csrf
+                        <button type="submit" class="px-4 py-2 bg-white border border-indigo-100 text-indigo-600 rounded-xl text-sm font-bold shadow-sm hover:bg-indigo-50 transition">
+                            Import Superbuy
+                        </button>
+                    </form>
                     <button @click="showImport = true" class="px-4 py-2 bg-white border border-indigo-100 text-indigo-600 rounded-xl text-sm font-bold shadow-sm hover:bg-indigo-50 transition">
                         Import
                     </button>

@@ -18,6 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Voorraad (Inventory)
     Route::post('/inventory/import', [InventoryController::class, 'importText'])->name('inventory.import');
+    Route::post('/inventory/import/superbuy', [InventoryController::class, 'importSuperbuy'])->name('inventory.import.superbuy');
     Route::post('/inventory/bulk-action', [InventoryController::class, 'bulkAction'])->name('inventory.bulkAction');
     Route::get('/inventory/archive', [InventoryController::class, 'index'])->name('inventory.archive');
     Route::resource('inventory', InventoryController::class)->except(['show']);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Parcel;
+use App\Services\SuperbuyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -63,5 +64,15 @@ class ParcelController extends Controller
         $parcel->delete();
         
         return redirect()->back()->with('success', 'Pakket verwijderd');
+    }
+
+    public function importSuperbuy(SuperbuyService $service)
+    {
+        try {
+            $count = $service->syncParcels(Auth::id());
+            return redirect()->back()->with('success', "$count pakketten geïmporteerd");
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Superbuy import mislukt: ' . $e->getMessage());
+        }
     }
 }

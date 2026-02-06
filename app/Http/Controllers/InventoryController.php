@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Smalot\PdfParser\Parser;
+use App\Services\SuperbuyService;
 
 class InventoryController extends Controller
 {
@@ -102,6 +103,16 @@ class InventoryController extends Controller
         $item->save();
 
         return redirect()->back()->with('success', 'Item toegevoegd!');
+    }
+
+    public function importSuperbuy(SuperbuyService $service)
+    {
+        try {
+            $count = $service->syncOrdersToInventory(Auth::id());
+            return redirect()->back()->with('success', "$count orders geïmporteerd naar voorraad");
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Superbuy import mislukt: ' . $e->getMessage());
+        }
     }
 
     // LET OP: Variabele naam gewijzigd naar $inventory om Route Model Binding te fixen

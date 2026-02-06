@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'superbuy' => [
+        'cookie' => env('SUPERBUY_COOKIE'),
+        'user_agent' => env('SUPERBUY_USER_AGENT'),
+    ],
+
 ];

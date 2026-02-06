@@ -12,7 +12,7 @@ class Item extends Model
 
     // Velden die we mogen invullen
     protected $fillable = [
-        'user_id', 'parcel_id', 'item_no', 'name', 'brand', 'size',
+        'user_id', 'parcel_id', 'item_no', 'order_nmr', 'name', 'brand', 'size',
         'category', 'buy_price', 'sell_price', 'is_sold',
         'sold_date', 'status', 'image_url', 'qc_link', 'source_link', 'notes'
     ];

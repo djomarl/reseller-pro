@@ -4,8 +4,7 @@ Gebruik deze lijst om taken, ideeën en verbeteringen voor het project bij te ho
 
 ## Openstaande taken
 - Superbuy import fix gegevens dat die import, nu import hij alleen order nummer en geen andere gegevens.
-- Fix bulk actions / verwijderen werkt niet.
-- Bij voorraad item wil ik een veld die heet ORDER NMR.
+- Zorg ervoor dat er account instellingen zijn en instellingen voor superbuy import dat we de cookie zelf kunnen updaten steeds.
 
 ---
 

@@ -177,6 +177,7 @@
                                 <input type="checkbox" @change="toggleAll($event)" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
                             </th>
                             <th class="px-6 py-4">Item</th>
+                            <th class="px-6 py-4">Order Nmr</th>
                             <th class="px-6 py-4">Categorie</th>
                             <th class="px-6 py-4">Maat</th>
                             <th class="px-6 py-4">Pakket</th>
@@ -208,6 +209,7 @@
                                     </div>
                                 </div>
                             </td>
+                            <td class="px-6 py-4 font-mono text-slate-500">{{ $item->order_nmr ?? '-' }}</td>
                             <td class="px-6 py-4 text-slate-600">{{ $item->category ?? '-' }}</td>
                             <td class="px-6 py-4 font-mono text-slate-500">{{ $item->size ?? '-' }}</td>
                             <td class="px-6 py-4 text-slate-600">
@@ -247,7 +249,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center py-12 text-slate-400 italic">Geen items gevonden.</td>
+                            <td colspan="10" class="text-center py-12 text-slate-400 italic">Geen items gevonden.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -276,6 +278,7 @@
                             <div>
                                 <div class="font-bold text-slate-800">{{ Str::limit($item->name, 40) }}</div>
                                 <div class="text-xs text-slate-400">{{ $item->brand ?? '—' }}</div>
+                                <div class="text-[11px] text-slate-400">Order Nmr: <span class="font-mono">{{ $item->order_nmr ?? '-' }}</span></div>
                             </div>
                             <span class="text-[10px] font-bold uppercase rounded-full px-2 py-1 border border-slate-200 text-slate-500">{{ $item->category ?? 'Overige' }}</span>
                         </div>
@@ -374,6 +377,11 @@
                         <div>
                             <label class="text-xs font-bold text-slate-500 uppercase">Naam*</label>
                             <input type="text" id="new_name" name="name" required class="w-full p-3 rounded-xl border-slate-200 mt-1">
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-bold text-slate-500 uppercase">Order Nmr</label>
+                            <input type="text" id="new_order_nmr" name="order_nmr" class="w-full p-3 rounded-xl border-slate-200 mt-1">
                         </div>
                         
                         <div class="flex gap-3">

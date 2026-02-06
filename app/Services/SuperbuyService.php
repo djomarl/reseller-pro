@@ -59,6 +59,7 @@ class SuperbuyService
                     'name' => $description ?: "Order $orderNo",
                 ],
                 [
+                    'order_nmr' => $orderNo,
                     'buy_price' => $buyPrice,
                     'status' => $this->normalizeInventoryStatus($status),
                     'is_sold' => false,
@@ -68,6 +69,9 @@ class SuperbuyService
 
             if ($item->wasRecentlyCreated) {
                 $imported++;
+            } elseif (empty($item->order_nmr)) {
+                $item->order_nmr = $orderNo;
+                $item->save();
             }
         });
 

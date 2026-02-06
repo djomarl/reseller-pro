@@ -17,6 +17,11 @@
                     <input type="text" name="name" value="{{ old('name', $item->name) }}" class="w-full p-3 rounded-xl border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 font-bold text-slate-800">
                 </div>
 
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Order Nmr</label>
+                    <input type="text" name="order_nmr" value="{{ old('order_nmr', $item->order_nmr) }}" class="w-full p-3 rounded-xl border-slate-200">
+                </div>
+
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Preset</label>

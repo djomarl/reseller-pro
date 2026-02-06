@@ -29,13 +29,14 @@ class InventoryController extends Controller
             $query->where('is_sold', false);
         }
 
-        // 2. Zoeken (Naam, Merk, Item #)
+        // 2. Zoeken (Naam, Merk, Item #, Order Nmr)
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('brand', 'like', "%{$search}%")
-                  ->orWhere('item_no', 'like', "%{$search}%");
+                  ->orWhere('item_no', 'like', "%{$search}%")
+                  ->orWhere('order_nmr', 'like', "%{$search}%");
             });
         }
 
@@ -76,6 +77,7 @@ class InventoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string',
+            'order_nmr' => 'nullable|string|max:255',
             'brand' => 'nullable|string',
             'category' => 'nullable|string', 
             'buy_price' => 'nullable|numeric',
@@ -183,6 +185,12 @@ class InventoryController extends Controller
 
     public function bulkAction(Request $request)
     {
+        $itemsPayload = $request->input('items');
+        if (is_string($itemsPayload)) {
+            $decoded = json_decode($itemsPayload, true);
+            $request->merge(['items' => is_array($decoded) ? $decoded : []]);
+        }
+
         $request->validate([
             'action' => 'required|in:delete,set_status,set_parcel',
             'items' => 'required|array',
@@ -319,6 +327,7 @@ class InventoryController extends Controller
                 'user_id' => Auth::id(),
                 'parcel_id' => $parcelId,
                 'item_no' => $itemNo,
+                'order_nmr' => $itemNo,
                 'name' => $name,
                 'brand' => $brand,
                 'category' => $category,
